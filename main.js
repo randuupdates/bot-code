@@ -1,9 +1,38 @@
+const express = require('express');
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => res.send('Hello World!'));
+
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
 
 const Discord = require('discord.js');
 require('dotenv').config()
 const client = new Discord.Client({ intents : 32767 });
 const feed = 'https://ytviewer.ga/article.txt';
 var cache = '';
+const fs = require('fs');
+
+// write cache to file
+function writeCache(cache) {
+    fs.writeFile('./cache.txt', cache, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+        console.log("The file was saved!");
+    });
+}
+
+function readCache() {
+    fs.readFile('./cache.txt', function(err, data) {
+        if(err) {
+            return console.log(err);
+        }
+        cache = data;
+    });
+}
+
+
 const {decode} = require('html-entities');
 
 client.on('ready', () => {
@@ -13,22 +42,19 @@ client.on('ready', () => {
     var request = require('request');
     request.get(feed, function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            if (cache == "") {
-              var feed = body;
-              cache = body;
-            } else if (body == cache) {
-              console.log("No new feed");
-              return
-            } else {
-              var feed = body;
-              cache = body;
-            }
-            
-
+            var feed = body;
             var strippedfeed = feed.replaceAll(/<{1}[^<>]{1,}>{1}/g,"");
             
             // for every line break, add a new entry to array
             var arr = strippedfeed.split("\n");
+            readCache()
+            if (strippedfeed == cache) {
+              console.log("No new feed");
+              return;
+            } else {
+              cache = strippedfeed;
+              writeCache(cache);
+            }
             // console.log(arr);
   
             // for every entry in array, check if it starts with title: and remove it
