@@ -164,6 +164,7 @@ int main() {
             //find end of article tag
             serverRespPtr = strstr(endArticleEnd, "</article>");
             if (!serverRespPtr) {
+		break;
                 //fwrite(endSpanEnd, 1, strlen(endSpanEnd), stdout);
             } else {
                 //create copies of the article tag so the program can do different string operations on them
@@ -174,7 +175,7 @@ int main() {
 
                 //check if the article is a breaking news article
                 if ((findBreaking = strstr(findArticlePtr, "Breaking")) != NULL) {
-
+		    printf("foundBreaking\n\n");
                     //find h3 tag (which holds the title)
                     while ((findArticlePtr = strstr(findArticlePtr, "<h3")) != NULL) {
                         //find end of h3 start tag
@@ -234,7 +235,7 @@ int main() {
 	    break;
         }
 
-
+	printf("clear\n\n");
         //clear everything and prepare to restart proccess after 5 mins (300 seconds)
 	memset(serverResp, '\0', strlen(serverResp));
         memset(buf, '\0', strlen(buf));
@@ -250,6 +251,7 @@ int main() {
 
         close(server);
         SSL_CTX_free(ctx);
+	printf("endClear\n\n");
         sleep(300); //5mins/300secs
     }
 
